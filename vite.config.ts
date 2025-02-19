@@ -47,11 +47,13 @@ export default defineConfig((config) => {
       preprocessorOptions: {
         scss: {
           charset: false,
+          additionalData: `@use 'sass:math'; @use 'sass:color'; @use 'sass:map'; @use 'sass:string'; @use 'sass:list';`,
           sassOptions: {
             outputStyle: 'compressed',
-            quietDeps: true
+            quietDeps: true,
+            sourceMap: true,
+            verbose: false
           },
-          additionalData: `@use "sass:math"; @use "sass:color"; @use "sass:map"; @use "sass:string"; @use "sass:list";`,
         },
       },
     },
