@@ -9,12 +9,11 @@
  * @returns The sampled function
  */
 export function createSampler<T extends (...args: any[]) => any>(fn: T, sampleInterval: number): T {
-  let lastArgs: Parameters<T> | null = null;
   let lastTime = 0;
+  let lastArgs: any[] | null = null;
   let timeout: NodeJS.Timeout | null = null;
 
-  // Create a function with the same type as the input function
-  const sampled = function (this: any, ...args: Parameters<T>) {
+  return function (this: any, ...args: any[]) {
     const now = Date.now();
     lastArgs = args;
 
@@ -22,7 +21,7 @@ export function createSampler<T extends (...args: any[]) => any>(fn: T, sampleIn
     if (now - lastTime < sampleInterval) {
       // Set up trailing call if not already set
       if (!timeout) {
-        timeout = setTimeout(
+        const timeoutId = setTimeout(
           () => {
             timeout = null;
             lastTime = Date.now();
@@ -34,16 +33,15 @@ export function createSampler<T extends (...args: any[]) => any>(fn: T, sampleIn
           },
           sampleInterval - (now - lastTime),
         );
+        timeout = timeoutId as unknown as NodeJS.Timeout;
       }
 
       return;
     }
 
-    // If we're outside the interval, execute immediately
+    // Outside sample interval, call immediately
     lastTime = now;
-    fn.apply(this, args);
     lastArgs = null;
+    fn.apply(this, args);
   } as T;
-
-  return sampled;
 }

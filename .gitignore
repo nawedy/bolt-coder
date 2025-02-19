@@ -31,7 +31,8 @@ dist-ssr
 *.vars
 .wrangler
 _worker.bundle
-
+.env.example
+.env.production
 Modelfile
 modelfiles
 
@@ -40,3 +41,4 @@ site
 
 # commit file ignore
 app/commit.json
+.vercel

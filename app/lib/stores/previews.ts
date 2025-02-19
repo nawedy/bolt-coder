@@ -272,7 +272,7 @@ export class PreviewsStore {
     }
 
     // Set a new timeout for this refresh
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       const previews = this.previews.get();
       const preview = previews.find((p) => this.getPreviewId(p.baseUrl) === previewId);
 
@@ -289,7 +289,7 @@ export class PreviewsStore {
       this.#refreshTimeouts.delete(previewId);
     }, this.#REFRESH_DELAY);
 
-    this.#refreshTimeouts.set(previewId, timeout);
+    this.#refreshTimeouts.set(previewId, timeoutId as unknown as NodeJS.Timeout);
   }
 }
 
