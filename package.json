@@ -8,7 +8,7 @@
   "version": "0.0.6",
   "scripts": {
     "deploy": "vercel deploy --prod",
-    "build": "remix build",
+    "build": "remix build --sourcemap",
     "dev": "node pre-start.cjs  && remix vite:dev",
     "test": "vitest --run",
     "test:watch": "vitest",
