@@ -13,68 +13,50 @@ export default async function handleRequest(
   remixContext: any,
   _loadContext: AppLoadContext,
 ) {
-  // await initializeModelList({});
+  try {
+    const callbackName = isbot(request.headers.get('user-agent')) ? 'onAllReady' : 'onShellReady';
 
-  const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
-    signal: request.signal,
-    onError(error: unknown) {
-      console.error(error);
-      responseStatusCode = 500;
-    },
-  });
+    const head = renderHeadToString({ request, remixContext, Head });
+    const htmlStart = `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`;
+    const htmlEnd = '</div></body></html>';
 
-  const body = new ReadableStream({
-    start(controller) {
-      const head = renderHeadToString({ request, remixContext, Head });
+    const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
+      signal: request.signal,
+      [callbackName]: () => {
+        responseHeaders.set('Content-Type', 'text/html');
+      },
+      onError(error: unknown) {
+        console.error('Streaming error:', error);
+        responseStatusCode = 500;
+      },
+    });
 
-      controller.enqueue(
-        new Uint8Array(
-          new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
-          ),
-        ),
-      );
+    if (responseStatusCode === 500 || isbot(request.headers.get('user-agent'))) {
+      await readable.allReady;
+    }
 
-      const reader = readable.getReader();
+    const transformStream = new TransformStream({
+      start(controller) {
+        controller.enqueue(new TextEncoder().encode(htmlStart));
+      },
+      async transform(chunk, controller) {
+        controller.enqueue(chunk);
+      },
+      flush(controller) {
+        controller.enqueue(new TextEncoder().encode(htmlEnd));
+      },
+    });
 
-      function read() {
-        reader
-          .read()
-          .then(({ done, value }) => {
-            if (done) {
-              controller.enqueue(new Uint8Array(new TextEncoder().encode('</div></body></html>')));
-              controller.close();
+    responseHeaders.set('Content-Type', 'text/html');
+    responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+    responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
 
-              return;
-            }
-
-            controller.enqueue(value);
-            read();
-          })
-          .catch((error) => {
-            controller.error(error);
-            readable.cancel();
-          });
-      }
-      read();
-    },
-
-    cancel() {
-      readable.cancel();
-    },
-  });
-
-  if (isbot(request.headers.get('user-agent') || '')) {
-    await readable.allReady;
+    return new Response(readable.pipeThrough(transformStream), {
+      status: responseStatusCode,
+      headers: responseHeaders,
+    });
+  } catch (error) {
+    console.error('Server error:', error);
+    return new Response('Internal Server Error', { status: 500 });
   }
-
-  responseHeaders.set('Content-Type', 'text/html');
-
-  responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
-
-  return new Response(body, {
-    headers: responseHeaders,
-    status: responseStatusCode,
-  });
 }
