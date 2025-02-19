@@ -1,0 +1,143 @@
+# Code Generation Rules for Claude 3.5 Sonnet
+
+## Core System Configuration
+
+1. Use Claude 3.5 Sonnet as the primary model for code generation
+2. Enable micro-agent for iterative code development with the following behaviors:
+   - Validate code at each generation step
+   - Check dependencies automatically
+   - Run integration tests for generated code
+   - Implement error correction when issues are found
+   - Limit iterations to 3 cycles per generation
+   - Set validation timeout to 30 seconds
+
+## Project Structure Requirements
+
+1. Every generated file must include a clear structure definition
+2. Follow modular design principles strictly
+3. Explicitly specify all dependencies
+4. Use consistent naming conventions across the project
+5. Organize folders hierarchically by function
+
+## Language-Specific Standards
+
+### TypeScript
+1. Enable strict mode
+2. Implement null checks
+3. Design interface-first
+4. Prohibit implicit any types
+5. Enforce strict null checks
+
+### Python
+1. Include type hints
+2. Write docstrings for all functions and classes
+3. Follow PEP8 standards
+4. Use dataclasses where appropriate
+5. Include comprehensive type hints
+
+### JavaScript
+1. Use strict mode
+2. Follow ESLint rules
+3. Prefer const declarations
+4. Include semicolons
+5. Implement proper error handling
+
+## Database Integration (Supabase)
+
+1. Define types for all database operations
+2. Implement data validation
+3. Include database migrations
+4. Version control all schema changes
+5. Enable Row Level Security (RLS)
+6. Validate all database queries
+
+## API Development
+
+1. Follow RESTful principles
+2. Implement comprehensive error handling
+3. Include Swagger documentation
+4. Version all APIs
+5. Implement rate limiting (default: 100 requests)
+6. Require authentication
+7. Validate all inputs
+
+## Testing Requirements
+
+1. Include unit tests for all components
+2. Maintain 80% code coverage minimum
+3. Implement integration tests
+4. Include end-to-end tests
+5. Support cross-browser testing
+6. Automate test runs
+
+## Documentation Standards
+
+1. Include detailed comments in code
+2. Generate API documentation
+3. Create OpenAPI specifications
+4. Include Postman collections
+5. Maintain comprehensive README with:
+   - Setup instructions
+   - Usage guidelines
+   - API documentation
+   - Deployment procedures
+
+## Performance Optimization
+
+1. Implement async operations where appropriate
+2. Optimize memory usage
+3. Minimize load times
+4. Enable code bundling and minimization
+5. Implement caching with stale-while-revalidate strategy
+
+## Deployment Configuration
+
+1. Support containerization
+2. Include GitHub Actions CI configuration
+3. Configure environment variables
+4. Use .env files for configuration
+5. Include deployment documentation
+
+## Code Quality Gates
+
+1. All generated code must pass linting
+2. Tests must pass with minimum coverage
+3. Documentation must be complete
+4. Performance benchmarks must be met
+5. Security checks must pass
+
+## Generation Process
+
+1. Start with interface/type definitions
+2. Generate core functionality
+3. Add error handling
+4. Include tests
+5. Add documentation
+6. Optimize for performance
+
+## Security Requirements
+
+1. Validate all inputs
+2. Implement authentication where required
+3. Use secure coding practices
+4. Follow OWASP guidelines
+5. Implement rate limiting
+6. Use environment variables for sensitive data
+
+## Error Handling
+
+1. Use try-catch blocks appropriately
+2. Implement error boundaries
+3. Log errors effectively
+4. Provide meaningful error messages
+5. Handle edge cases
+
+## Version Control
+
+1. Include meaningful commit messages
+2. Separate concerns in different files
+3. Follow semantic versioning
+4. Include changelog entries
+5. Document breaking changes
+
+Note: These rules serve as guidelines for Claude 3.5 Sonnet to generate high-quality, maintainable code. Adjust rules based on specific project requirements while maintaining core quality standards.
