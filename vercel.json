@@ -3,5 +3,15 @@
   "devCommand": "pnpm run dev",
   "installCommand": "pnpm install",
   "framework": "remix",
-  "regions": ["iad1"]
+  "regions": ["iad1"],
+  "functions": {
+    "app/routes/**/*": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "env": {
+    "REMIX_ENV": "production",
+    "NODE_ENV": "production"
+  }
 }
