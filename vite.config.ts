@@ -13,8 +13,9 @@ dotenv.config();
 const getGitHash = () => {
   try {
     return execSync('git rev-parse --short HEAD').toString().trim();
-  } catch {
-    return 'no-git-info';
+  } catch (error) {
+    console.warn('Git repository not found, using fallback hash');
+    return 'development';
   }
 };
 
@@ -41,10 +42,16 @@ export default defineConfig((config) => {
     css: {
       modules: {
         localsConvention: 'camelCase',
+        generateScopedName: '[name]__[local]___[hash:base64:5]'
       },
       preprocessorOptions: {
         scss: {
-          additionalData: `@use "sass:math"; @use "sass:color";`,
+          charset: false,
+          sassOptions: {
+            outputStyle: 'compressed',
+            quietDeps: true
+          },
+          additionalData: `@use "sass:math"; @use "sass:color"; @use "sass:map"; @use "sass:string"; @use "sass:list";`,
         },
       },
     },
