@@ -26,16 +26,32 @@ export default defineConfig((config) => {
     define: {
       __COMMIT_HASH: JSON.stringify(getGitHash()),
       __APP_VERSION: JSON.stringify(process.env.npm_package_version),
-      // 'process.env': JSON.stringify(process.env)
     },
     build: {
       target: 'esnext',
+      sourcemap: true,
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom', '@remix-run/react'],
+          },
+        },
+      },
+    },
+    css: {
+      modules: {
+        localsConvention: 'camelCase',
+      },
+      preprocessorOptions: {
+        scss: {
+          additionalData: `@import "./app/styles/variables.scss";`,
+        },
+      },
     },
     plugins: [
       nodePolyfills({
         include: ['path', 'buffer', 'process'],
       }),
-      // Removed Cloudflare proxy for Vercel deployment
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,
@@ -50,13 +66,6 @@ export default defineConfig((config) => {
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
     envPrefix: ["VITE_","OPENAI_LIKE_API_BASE_URL", "OLLAMA_API_BASE_URL", "LMSTUDIO_API_BASE_URL","TOGETHER_API_BASE_URL"],
-    css: {
-      preprocessorOptions: {
-        scss: {
-          api: 'modern-compiler',
-        },
-      },
-    },
   };
 });
 
