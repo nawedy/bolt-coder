@@ -1,0 +1,75 @@
+@use '@/modules/mixins' as *;
+@use '@/modules/animations' as *;
+@use '@/modules/layout' as *;
+
+.card {
+  @include spring-animation('transform, opacity');
+  @include focus-ring;
+  
+  position: relative;
+  background: var(--bolt-elements-bg-depth-1);
+  border: 1px solid var(--bolt-elements-borderColor);
+  border-radius: 8px;
+  overflow: hidden;
+
+  // Modern stacking context
+  isolation: isolate;
+
+  &[data-animated="true"] {
+    @include keyframe-animation('scale-in');
+  }
+
+  &[data-interactive="true"] {
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-2px);
+      border-color: var(--bolt-elements-borderColorActive);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+.cardContent {
+  @include stack('1rem');
+  padding: 1.5rem;
+}
+
+.cardGrid {
+  @include card-grid('300px');
+  
+  // Apply stagger animation to cards
+  .card {
+    @include stagger-children('scale-in', 10, 50ms);
+  }
+}
+
+.cardHeader {
+  @include cluster('0.5rem', 'space-between');
+}
+
+.cardTitle {
+  @include fluid-type(16, 20);
+  color: var(--bolt-elements-textPrimary);
+  font-weight: 600;
+  margin: 0;
+}
+
+.cardDescription {
+  color: var(--bolt-elements-textSecondary);
+  margin: 0;
+  
+  @include container-query('sm') {
+    @include fluid-type(14, 16);
+  }
+}
+
+.cardFooter {
+  @include cluster('1rem', 'flex-end');
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid var(--bolt-elements-borderColor);
+}

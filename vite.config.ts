@@ -1,6 +1,6 @@
 import { vitePlugin as remixVitePlugin } from '@remix-run/dev';
 import UnoCSS from 'unocss/vite';
-import { defineConfig, type ViteDevServer } from 'vite';
+import { defineConfig, type ViteDevServer, type UserConfig } from 'vite';
 import { nodePolyfills } from 'vite-plugin-node-polyfills';
 import { optimizeCssModules } from 'vite-plugin-optimize-css-modules';
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -13,17 +13,14 @@ dotenv.config();
 const getGitHash = () => {
   try {
     return execSync('git rev-parse --short HEAD').toString().trim();
-  } catch (error) {
+  } catch {
     console.warn('Git repository not found, using fallback hash');
     return 'development';
   }
 };
 
-
-
-
-export default defineConfig((config) => {
-  return {
+export default defineConfig(
+  (): UserConfig => ({
     define: {
       __COMMIT_HASH: JSON.stringify(getGitHash()),
       __APP_VERSION: JSON.stringify(process.env.npm_package_version),
@@ -33,8 +30,12 @@ export default defineConfig((config) => {
       sourcemap: true,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ['react', 'react-dom', '@remix-run/react'],
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              return 'vendor';
+            }
+
+            return null;
           },
         },
       },
@@ -42,20 +43,14 @@ export default defineConfig((config) => {
     css: {
       modules: {
         localsConvention: 'camelCase',
-        generateScopedName: '[name]__[local]___[hash:base64:5]'
+        generateScopedName: '[name]__[local]___[hash:base64:5]',
       },
       preprocessorOptions: {
         scss: {
-          charset: false,
-          additionalData: `@use 'sass:math'; @use 'sass:color'; @use 'sass:map'; @use 'sass:string'; @use 'sass:list';`,
-          sassOptions: {
-            outputStyle: 'compressed',
-            quietDeps: true,
-            sourceMap: true,
-            verbose: false
-          },
+          includePaths: ['app/styles'],
         },
       },
+      devSourcemap: process.env.NODE_ENV === 'development',
     },
     plugins: [
       nodePolyfills({
@@ -66,17 +61,23 @@ export default defineConfig((config) => {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,
           v3_throwAbortReason: true,
-          v3_lazyRouteDiscovery: true
+          v3_lazyRouteDiscovery: true,
         },
       }),
       UnoCSS(),
       tsconfigPaths(),
       chrome129IssuePlugin(),
-      config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
+      process.env.NODE_ENV === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
-    envPrefix: ["VITE_","OPENAI_LIKE_API_BASE_URL", "OLLAMA_API_BASE_URL", "LMSTUDIO_API_BASE_URL","TOGETHER_API_BASE_URL"],
-  };
-});
+    envPrefix: [
+      'VITE_',
+      'OPENAI_LIKE_API_BASE_URL',
+      'OLLAMA_API_BASE_URL',
+      'LMSTUDIO_API_BASE_URL',
+      'TOGETHER_API_BASE_URL',
+    ],
+  }),
+);
 
 function chrome129IssuePlugin() {
   return {

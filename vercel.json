@@ -8,9 +8,7 @@
     "REMIX_ENV": "production",
     "NODE_ENV": "production"
   },
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/api" }
-  ],
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "headers": [
     {
       "source": "/build/(.*)",

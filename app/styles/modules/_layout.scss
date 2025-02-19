@@ -1,0 +1,112 @@
+@use 'sass:map';
+@use 'sass:math';
+
+/// Modern CSS Grid layout system
+/// Supports both flex and grid layouts with automatic fallbacks
+
+// Layout configuration
+$layout-config: (
+  'container-max': 1440px,
+  'container-padding': 1rem,
+  'grid-columns': 12,
+  'grid-gap': 1rem,
+  'breakout-max': 1920px
+);
+
+/// Container mixin with modern max-width handling
+/// @param {String} $size - Container size (default, small, large)
+@mixin container($size: 'default') {
+  $max-widths: (
+    'small': 768px,
+    'default': map.get($layout-config, 'container-max'),
+    'large': map.get($layout-config, 'breakout-max')
+  );
+
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: map.get($layout-config, 'container-padding');
+  max-width: map.get($max-widths, $size);
+
+  @supports (width: min(100% - 2rem, 1440px)) {
+    width: min(100% - 2rem, map.get($max-widths, $size));
+    padding-inline: 0;
+  }
+}
+
+/// Modern grid system with automatic responsive behavior
+/// @param {Number} $columns - Number of columns
+/// @param {String} $gap - Gap between columns
+@mixin responsive-grid($columns: 12, $gap: 1rem) {
+  display: grid;
+  gap: $gap;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(100%, math.div(100%, $columns)), 1fr)
+  );
+}
+
+/// Modern auto-fit grid for card layouts
+/// @param {String} $min-width - Minimum width of each item
+@mixin card-grid($min-width: '250px') {
+  display: grid;
+  gap: map.get($layout-config, 'grid-gap');
+  grid-template-columns: repeat(auto-fit, minmax($min-width, 1fr));
+  align-items: start;
+}
+
+/// Modern stack layout with consistent spacing
+/// @param {String} $space - Space between items
+@mixin stack($space: '1rem') {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: $space;
+
+  &[data-reversed="true"] {
+    flex-direction: column-reverse;
+  }
+}
+
+/// Modern cluster layout for groups of items
+/// @param {String} $space - Space between items
+/// @param {String} $justify - Justification of items
+@mixin cluster($space: '1rem', $justify: 'flex-start') {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space;
+  justify-content: $justify;
+  align-items: center;
+}
+
+/// Modern sidebar layout with responsive behavior
+/// @param {String} $side-width - Width of the sidebar
+/// @param {String} $content-min - Minimum width of the content
+/// @param {String} $gap - Gap between sidebar and content
+@mixin sidebar($side-width: '250px', $content-min: '500px', $gap: '2rem') {
+  display: grid;
+  gap: $gap;
+  grid-template-columns: $side-width 1fr;
+
+  @container (width < #{$content-min}) {
+    grid-template-columns: 1fr;
+  }
+
+  &[data-side="right"] {
+    grid-template-columns: 1fr $side-width;
+
+    @container (width < #{$content-min}) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+/// Modern center layout with constraints
+/// @param {String} $max-width - Maximum width of centered content
+@mixin center($max-width: '60ch') {
+  box-sizing: content-box;
+  margin-inline: auto;
+  max-width: $max-width;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

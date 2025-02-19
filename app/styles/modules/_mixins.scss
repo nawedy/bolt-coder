@@ -1,0 +1,55 @@
+@use 'sass:math';
+@use 'sass:map';
+@use 'sass:color';
+
+/// Modern responsive mixin using CSS container queries
+/// @param {String} $size - Breakpoint name or custom size
+@mixin container-query($size) {
+  @container #{$size} {
+    @content;
+  }
+}
+
+/// Modern fluid typography mixin
+/// @param {Number} $min-size - Minimum font size in pixels
+/// @param {Number} $max-size - Maximum font size in pixels
+/// @param {Number} $min-width - Minimum viewport width
+/// @param {Number} $max-width - Maximum viewport width
+@mixin fluid-type($min-size, $max-size, $min-width: 320px, $max-width: 1200px) {
+  font-size: #{$min-size}px;
+  
+  @media screen and (min-width: #{$min-width}) {
+    font-size: calc(#{$min-size}px + #{($max-size - $min-size)} * ((100vw - #{$min-width}) / #{($max-width - $min-width)}));
+  }
+  
+  @media screen and (min-width: #{$max-width}) {
+    font-size: #{$max-size}px;
+  }
+}
+
+/// Modern safe-area mixin for notched devices
+/// @param {String} $position - Position (top, right, bottom, left)
+/// @param {Number} $fallback - Fallback value in pixels
+@mixin safe-area($position, $fallback: 0px) {
+  padding-#{$position}: $fallback;
+  padding-#{$position}: max($fallback, env(safe-area-inset-#{$position}));
+}
+
+/// Modern grid layout mixin
+/// @param {Number} $columns - Number of columns
+/// @param {String} $gap - Gap between columns
+@mixin modern-grid($columns: 12, $gap: 1rem) {
+  display: grid;
+  grid-template-columns: repeat($columns, minmax(0, 1fr));
+  gap: $gap;
+}
+
+/// Modern focus styles
+/// @param {Color} $color - Focus ring color
+/// @param {Number} $width - Focus ring width
+@mixin focus-ring($color: var(--bolt-elements-borderColorActive), $width: 2px) {
+  &:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 $width $color;
+  }
+}

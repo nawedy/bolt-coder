@@ -1,0 +1,106 @@
+@use 'sass:map';
+@use 'sass:math';
+
+/// Modern animation timing functions
+$easings: (
+  'linear': cubic-bezier(0, 0, 1, 1),
+  'ease-in': cubic-bezier(0.4, 0, 1, 1),
+  'ease-out': cubic-bezier(0, 0, 0.2, 1),
+  'ease-in-out': cubic-bezier(0.4, 0, 0.2, 1),
+  'bounce': cubic-bezier(0.68, -0.55, 0.265, 1.55)
+);
+
+/// Modern animation durations
+$durations: (
+  'fast': 150ms,
+  'normal': 300ms,
+  'slow': 500ms
+);
+
+/// Modern spring animation mixin
+/// @param {String} $property - CSS property to animate
+/// @param {String} $easing - Easing function name from $easings
+/// @param {String} $duration - Duration name from $durations
+@mixin spring-animation($property, $easing: 'ease-out', $duration: 'normal') {
+  $timing-function: map.get($easings, $easing);
+  $time: map.get($durations, $duration);
+
+  transition-property: $property;
+  transition-duration: $time;
+  transition-timing-function: $timing-function;
+  will-change: $property;
+}
+
+/// Modern keyframe animation mixin
+/// @param {String} $name - Animation name
+/// @param {String} $easing - Easing function name from $easings
+/// @param {String} $duration - Duration name from $durations
+@mixin keyframe-animation($name, $easing: 'ease-out', $duration: 'normal') {
+  $timing-function: map.get($easings, $easing);
+  $time: map.get($durations, $duration);
+
+  animation-name: $name;
+  animation-duration: $time;
+  animation-timing-function: $timing-function;
+  animation-fill-mode: both;
+}
+
+/// Modern stagger animation mixin
+/// @param {String} $name - Animation name
+/// @param {Number} $items - Number of items
+/// @param {Number} $stagger-time - Time between each item
+@mixin stagger-children($name, $items, $stagger-time: 50ms) {
+  @for $i from 1 through $items {
+    &:nth-child(#{$i}) {
+      animation-delay: $i * $stagger-time;
+    }
+  }
+}
+
+// Predefined modern animations
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes bounce-in {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  70% { transform: scale(0.9); }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
