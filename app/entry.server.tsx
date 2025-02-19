@@ -20,10 +20,12 @@ export default async function handleRequest(
     const htmlStart = `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`;
     const htmlEnd = '</div></body></html>';
 
-    const readable = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
+    const stream = await renderToReadableStream(<RemixServer context={remixContext} url={request.url} />, {
       signal: request.signal,
-      [callbackName]: () => {
+      [callbackName]() {
         responseHeaders.set('Content-Type', 'text/html');
+        responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
+        responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
       },
       onError(error: unknown) {
         console.error('Streaming error:', error);
@@ -31,15 +33,15 @@ export default async function handleRequest(
       },
     });
 
-    if (responseStatusCode === 500 || isbot(request.headers.get('user-agent'))) {
-      await readable.allReady;
+    if (responseStatusCode === 500) {
+      await stream.allReady;
     }
 
     const transformStream = new TransformStream({
       start(controller) {
         controller.enqueue(new TextEncoder().encode(htmlStart));
       },
-      async transform(chunk, controller) {
+      transform(chunk, controller) {
         controller.enqueue(chunk);
       },
       flush(controller) {
@@ -47,11 +49,7 @@ export default async function handleRequest(
       },
     });
 
-    responseHeaders.set('Content-Type', 'text/html');
-    responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
-    responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
-
-    return new Response(readable.pipeThrough(transformStream), {
+    return new Response(stream.pipeThrough(transformStream), {
       status: responseStatusCode,
       headers: responseHeaders,
     });
