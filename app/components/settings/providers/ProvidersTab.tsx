@@ -4,6 +4,7 @@ import { useSettings } from '~/lib/hooks/useSettings';
 import { LOCAL_PROVIDERS, URL_CONFIGURABLE_PROVIDERS } from '~/lib/stores/settings';
 import type { IProviderConfig } from '~/types/model';
 import { logStore } from '~/lib/stores/logs';
+import { useAuth } from '~/lib/auth/AuthContext';
 
 // Import a default fallback icon
 import { providerBaseUrlEnvKeys } from '~/utils/constants';
@@ -13,8 +14,7 @@ const DefaultIcon = '/icons/Default.svg'; // Adjust the path as necessary
 export default function ProvidersTab() {
   const { providers, updateProviderSettings, isLocalModel } = useSettings();
   const [filteredProviders, setFilteredProviders] = useState<IProviderConfig[]>([]);
-
-  // Load base URLs from cookies
+  const { authState, updateApiKey } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -78,35 +78,55 @@ export default function ProvidersTab() {
             }}
           />
         </div>
-        {isUrlConfigurable && provider.settings.enabled && (
-          <div className="mt-2">
-            {envBaseUrl && (
-              <label className="block text-xs text-bolt-elements-textSecondary text-green-300 mb-2">
-                Set On (.env) : {envBaseUrl}
-              </label>
+        {provider.settings.enabled && (
+          <div className="mt-2 space-y-4">
+            {isUrlConfigurable && (
+              <>
+                {envBaseUrl && (
+                  <label className="block text-xs text-bolt-elements-textSecondary text-green-300 mb-2">
+                    Set On (.env) : {envBaseUrl}
+                  </label>
+                )}
+                <label className="block text-sm text-bolt-elements-textSecondary mb-2">
+                  {envBaseUrl ? 'Override Base Url' : 'Base URL '}:{' '}
+                </label>
+                <input
+                  type="text"
+                  value={provider.settings.baseUrl || ''}
+                  onChange={(e) => {
+                    let newBaseUrl: string | undefined = e.target.value;
+
+                    if (newBaseUrl && newBaseUrl.trim().length === 0) {
+                      newBaseUrl = undefined;
+                    }
+
+                    updateProviderSettings(provider.name, { ...provider.settings, baseUrl: newBaseUrl });
+                  }}
+                  className="w-full px-3 py-2 bg-bolt-elements-background border border-bolt-elements-borderColor rounded-md text-bolt-elements-textPrimary"
+                />
+              </>
             )}
-            <label className="block text-sm text-bolt-elements-textSecondary mb-2">
-              {envBaseUrl ? 'Override Base Url' : 'Base URL '}:{' '}
-            </label>
-            <input
-              type="text"
-              value={provider.settings.baseUrl || ''}
-              onChange={(e) => {
-                let newBaseUrl: string | undefined = e.target.value;
-
-                if (newBaseUrl && newBaseUrl.trim().length === 0) {
-                  newBaseUrl = undefined;
-                }
-
-                updateProviderSettings(provider.name, { ...provider.settings, baseUrl: newBaseUrl });
-                logStore.logProvider(`Base URL updated for ${provider.name}`, {
-                  provider: provider.name,
-                  baseUrl: newBaseUrl,
-                });
-              }}
-              placeholder={`Enter ${provider.name} base URL`}
-              className="w-full bg-white dark:bg-bolt-elements-background-depth-4 relative px-2 py-1.5 rounded-md focus:outline-none placeholder-bolt-elements-textTertiary text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary border border-bolt-elements-borderColor"
-            />
+            
+            <div>
+              <label className="block text-sm text-bolt-elements-textSecondary mb-2">
+                API Key:
+              </label>
+              <input
+                type="password"
+                value={authState.user?.apiKeys[provider.name] || ''}
+                onChange={(e) => {
+                  updateApiKey(provider.name, e.target.value);
+                  logStore.logProvider(`API key updated for ${provider.name}`, {
+                    provider: provider.name
+                  });
+                }}
+                className="w-full px-3 py-2 bg-bolt-elements-background border border-bolt-elements-borderColor rounded-md text-bolt-elements-textPrimary"
+                placeholder="Enter your API key"
+              />
+              <p className="mt-1 text-xs text-bolt-elements-textSecondary">
+                Your API key is securely stored and only accessible by you
+              </p>
+            </div>
           </div>
         )}
       </div>

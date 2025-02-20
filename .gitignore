@@ -11,6 +11,10 @@ dist
 dist-ssr
 *.local
 
+/data
+/.data
+/.data/*
+/.data/*/*
 .vscode/*
 .vscode/launch.json
 !.vscode/extensions.json

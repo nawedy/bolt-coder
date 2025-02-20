@@ -1,4 +1,5 @@
-import { json, type MetaFunction } from '@remix-run/cloudflare';
+import { json, redirect, type MetaFunction } from '@remix-run/node';
+import { getUser } from '~/lib/auth/session.server';
 import { ClientOnly } from 'remix-utils/client-only';
 import { BaseChat } from '~/components/chat/BaseChat';
 import { Chat } from '~/components/chat/Chat.client';
@@ -9,7 +10,15 @@ export const meta: MetaFunction = () => {
   return [{ title: 'Bolt' }, { name: 'description', content: 'Talk with Bolt, an AI assistant from StackBlitz' }];
 };
 
-export const loader = () => json({});
+export async function loader({ request }) {
+  const user = await getUser(request);
+  
+  if (!user) {
+    return redirect('/auth');
+  }
+  
+  return json({ user });
+}
 
 export default function Index() {
   return (

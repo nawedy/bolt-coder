@@ -1,4 +1,7 @@
 import { useStore } from '@nanostores/react';
+import { json } from '@remix-run/node';
+import { useLoaderData } from '@remix-run/react';
+import { getUser } from './lib/auth/session.server';
 import type { LinksFunction } from '@remix-run/node';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
@@ -79,9 +82,21 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { AuthProvider } from './lib/auth/AuthContext';
+import { ProtectedRoute } from './components/auth/ProtectedRoute';
+
+export async function loader({ request }) {
+  const user = await getUser(request);
+  return json({ user });
+}
+
+export function shouldRevalidate() {
+  return true;
+}
 
 export default function App() {
   const theme = useStore(themeStore);
+  const { user } = useLoaderData<{ user: User | null }>();
 
   useEffect(() => {
     logStore.logSystem('Application initialized', {
@@ -94,7 +109,9 @@ export default function App() {
 
   return (
     <Layout>
-      <Outlet />
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
     </Layout>
   );
 }

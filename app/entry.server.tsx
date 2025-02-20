@@ -1,4 +1,4 @@
-import type { AppLoadContext, EntryContext } from '@remix-run/node';
+import type { AppLoadContext } from '@remix-run/node';
 import { RemixServer } from '@remix-run/react';
 import { renderToString } from 'react-dom/server';
 import { renderHeadToString } from 'remix-island';
