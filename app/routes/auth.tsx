@@ -1,51 +1,39 @@
-import { json } from '@remix-run/node';
+import { json, redirect } from '@remix-run/node';
 import { LoginForm } from '~/components/auth/LoginForm';
-import { createUserSession } from '~/lib/auth/session.server';
-import { ENV } from '~/lib/config.server';
+import { createUserSession, getSession } from '~/lib/auth/session.server';
+import { auth } from '~/lib/auth/db';
 
 export async function action({ request }: { request: Request }) {
-  console.log('Environment variables:', {
-    adminUsername: ENV.ADMIN_USERNAME,
-    adminPasswordLength: ENV.ADMIN_PASSWORD?.length,
-  });
-
   const formData = await request.formData();
   const username = formData.get('username');
   const password = formData.get('password');
 
-  console.log('Login attempt:', { username, providedPasswordLength: password ? String(password).length : 0 });
-
-  if (!username || !password) {
+  if (typeof username !== 'string' || typeof password !== 'string') {
     return json({ error: 'Username and password are required' }, { status: 400 });
   }
 
   try {
-    const isValidUsername = username === ENV.ADMIN_USERNAME;
-    const isValidPassword = password === ENV.ADMIN_PASSWORD;
+    const user = auth.verifyUser(username, password);
 
-    console.log('Validation:', { isValidUsername, isValidPassword });
-
-    // Skip the login helper and create session directly if credentials match
-    if (isValidUsername && isValidPassword) {
-      console.log('Creating session for user');
-
-      const user = {
-        id: 'admin-id',
-        username: ENV.ADMIN_USERNAME,
-        isAdmin: true,
-        apiKeys: {},
-      };
-
-      return createUserSession(user.id, '/');
+    if (!user) {
+      return json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    console.log('Login validation failed');
-
-    return json({ error: 'Invalid credentials' }, { status: 401 });
+    return createUserSession(user.id, '/');
   } catch (error) {
     console.error('Login error:', error);
     return json({ error: 'Login failed' }, { status: 500 });
   }
+}
+
+export async function loader({ request }: { request: Request }) {
+  const session = await getSession(request);
+
+  if (session.has('userId')) {
+    return redirect('/');
+  }
+
+  return null;
 }
 
 export default function LoginRoute() {

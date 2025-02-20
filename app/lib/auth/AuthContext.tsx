@@ -1,74 +1,90 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { useSubmit } from '@remix-run/react';
+import { useSubmit, useNavigate } from '@remix-run/react';
 import type { AuthContextType, AuthState, LoginCredentials } from './types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({
+  children,
+  initialUser = null,
+}: {
+  children: React.ReactNode;
+  initialUser?: AuthState['user'];
+}) {
   const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isAuthenticated: false,
+    user: initialUser,
+    isAuthenticated: !!initialUser,
     error: null,
   });
 
   const submit = useSubmit();
+  const navigate = useNavigate();
 
-  const login = useCallback(async (credentials: LoginCredentials) => {
-    console.log('Login attempt:', { username: credentials.username });
+  const login = useCallback(
+    async (credentials: LoginCredentials) => {
+      try {
+        const formData = new FormData();
+        formData.append('username', credentials.username);
+        formData.append('password', credentials.password);
 
+        submit(formData, { method: 'post', action: '/auth' });
+      } catch (error) {
+        console.error('Login error:', error);
+        setAuthState({
+          user: null,
+          isAuthenticated: false,
+          error: error instanceof Error ? error.message : 'Login failed',
+        });
+      }
+    },
+    [submit],
+  );
+
+  const logout = useCallback(async () => {
     try {
-      const formData = new FormData();
-      formData.append('username', credentials.username);
-      formData.append('password', credentials.password);
-
-      submit(formData, { method: 'post', action: '/auth' });
-    } catch (error) {
-      console.error('Login error:', error);
+      await fetch('/auth/logout', { method: 'POST' });
       setAuthState({
         user: null,
         isAuthenticated: false,
-        error: error instanceof Error ? error.message : 'Login failed',
+        error: null,
       });
+      navigate('/auth');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }, [navigate]);
+
+  const updateApiKey = useCallback(async (provider: string, key: string) => {
+    try {
+      const response = await fetch('/api/auth/api-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider, key }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update API key');
+      }
+
+      const data = (await response.json()) as { user: AuthState['user'] };
+
+      setAuthState((prev) => ({
+        ...prev,
+        user: data.user,
+      }));
+    } catch (error) {
+      console.error('API key update error:', error);
     }
   }, []);
 
-  const logout = useCallback(() => {
-    setAuthState({
-      user: null,
-      isAuthenticated: false,
-      error: null,
-    });
-  }, []);
+  const value = {
+    authState,
+    login,
+    logout,
+    updateApiKey,
+  };
 
-  const updateApiKey = useCallback(async (provider: string, key: string) => {
-    setAuthState((prev) => {
-      if (!prev.user) {
-        return prev;
-      }
-
-      /*
-       * Update API key in database
-       * Update API key in session
-       */
-      const formData = new FormData();
-      formData.append('provider', provider);
-      formData.append('key', key);
-      submit(formData, { method: 'post', action: '/api/auth/update-key' });
-
-      return {
-        ...prev,
-        user: {
-          ...prev.user,
-          apiKeys: {
-            ...prev.user.apiKeys,
-            [provider]: key,
-          },
-        },
-      };
-    });
-  }, []);
-
-  return <AuthContext.Provider value={{ authState, login, logout, updateApiKey }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

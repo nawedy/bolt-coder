@@ -1,3 +1,12 @@
+// Internal user type with password
+export interface InternalUser {
+  id: string;
+  username: string;
+  isAdmin: boolean;
+  password: string;
+}
+
+// Public user type without password
 export interface User {
   id: string;
   username: string;

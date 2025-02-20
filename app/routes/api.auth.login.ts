@@ -1,6 +1,7 @@
 import { json } from '@remix-run/node';
 import type { ActionFunction } from '@remix-run/node';
 import { auth } from '~/lib/auth/db';
+import { createUserSession } from '~/lib/auth/session.server';
 
 export const action: ActionFunction = async ({ request }) => {
   if (request.method !== 'POST') {
@@ -21,7 +22,8 @@ export const action: ActionFunction = async ({ request }) => {
       return json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    return json({ user });
+    // Create session and redirect
+    return createUserSession(user.id, '/');
   } catch (error) {
     console.error('Login error:', error);
     return json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
