@@ -48,6 +48,8 @@ export default defineConfig(
       preprocessorOptions: {
         scss: {
           includePaths: ['app/styles'],
+          outputStyle: 'compressed',
+          sourceMap: true,
         },
       },
       devSourcemap: process.env.NODE_ENV === 'development',
