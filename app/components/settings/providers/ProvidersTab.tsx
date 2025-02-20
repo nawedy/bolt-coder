@@ -106,18 +106,16 @@ export default function ProvidersTab() {
                 />
               </>
             )}
-            
+
             <div>
-              <label className="block text-sm text-bolt-elements-textSecondary mb-2">
-                API Key:
-              </label>
+              <label className="block text-sm text-bolt-elements-textSecondary mb-2">API Key:</label>
               <input
                 type="password"
                 value={authState.user?.apiKeys[provider.name] || ''}
                 onChange={(e) => {
                   updateApiKey(provider.name, e.target.value);
                   logStore.logProvider(`API key updated for ${provider.name}`, {
-                    provider: provider.name
+                    provider: provider.name,
                   });
                 }}
                 className="w-full px-3 py-2 bg-bolt-elements-background border border-bolt-elements-borderColor rounded-md text-bolt-elements-textPrimary"

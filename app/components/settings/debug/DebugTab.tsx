@@ -375,7 +375,7 @@ export default function DebugTab() {
 
     const interval = setInterval(updateProviderStatuses, 30000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(interval as unknown as number);
   }, [providers]);
 
   const handleCheckForUpdate = useCallback(async () => {

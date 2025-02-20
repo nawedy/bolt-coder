@@ -18,6 +18,7 @@ export const ENV = {
 
 // Validate required environment variables
 const requiredVars = ['ADMIN_USERNAME', 'ADMIN_PASSWORD', 'ENCRYPTION_KEY'] as const;
+
 for (const key of requiredVars) {
   if (!ENV[key]) {
     throw new Error(`Missing required environment variable: ${key}`);

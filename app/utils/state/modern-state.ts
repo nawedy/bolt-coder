@@ -10,13 +10,6 @@ type StateSelector<T, R> = (state: T) => R;
 type StateEffect<T> = (state: T) => void;
 type StateMiddleware<T> = (state: T, action: string) => T;
 
-interface CacheOptions {
-  maxAge?: number;
-  namespace?: string;
-  priority?: 'high' | 'normal' | 'low';
-  compression?: boolean;
-}
-
 export class ModernStateManager<T extends object> {
   private readonly _state: T;
   private readonly _subscribers: Set<StateSubscriber<T>>;

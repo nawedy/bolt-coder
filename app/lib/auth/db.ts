@@ -43,7 +43,7 @@ const adminId = 'admin-' + Buffer.from(AUTH_CONFIG.ADMIN_USERNAME).toString('hex
 console.log('Creating default admin:', {
   id: adminId,
   username: AUTH_CONFIG.ADMIN_USERNAME,
-  passwordLength: AUTH_CONFIG.ADMIN_PASSWORD.length
+  passwordLength: AUTH_CONFIG.ADMIN_PASSWORD.length,
 });
 createDefaultAdmin.run(adminId, AUTH_CONFIG.ADMIN_USERNAME, hashedPassword);
 
@@ -72,6 +72,7 @@ export const auth = {
     const user = stmt.get(username) as any;
 
     console.log('Found user:', user ? 'yes' : 'no');
+
     if (!user) {
       console.log('User not found');
       return null;

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { Suspense, forwardRef } from 'react';
 import type { ComponentType } from 'react';
 import { PerformanceMonitor } from './monitor';
@@ -30,6 +31,7 @@ export function createLazyComponent<T extends LazyComponentProps>(
     return Promise.race<{ default: ComponentType<T> }>([
       factory().then((module: { default: ComponentType<T> }) => {
         const loadTime = performance.now() - startTime;
+        console.debug(`[Lazy] Component loaded in ${loadTime}ms`);
         PerformanceMonitor.getInstance().getMetric('lazy-load')?.value;
 
         return module;
@@ -132,6 +134,7 @@ export function LazyImage({
 
     observer.observe(imgRef.current);
 
+    // eslint-disable-next-line consistent-return
     return () => observer.disconnect();
   }, [src]);
 

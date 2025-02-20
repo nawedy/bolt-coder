@@ -1,5 +1,5 @@
 import { createCookieSessionStorage, redirect } from '@remix-run/node';
-import bcrypt from 'bcryptjs';
+
 import type { LoginCredentials, User } from './types';
 import { ENV } from '~/lib/config.server';
 
@@ -25,6 +25,7 @@ export async function getSession(request: Request) {
 export async function createUserSession(userId: string, redirectTo: string) {
   const session = await sessionStorage.getSession();
   session.set('userId', userId);
+
   return redirect(redirectTo, {
     headers: {
       'Set-Cookie': await sessionStorage.commitSession(session),
@@ -36,12 +37,16 @@ export async function createUserSession(userId: string, redirectTo: string) {
 export async function getUser(request: Request): Promise<User | null> {
   const session = await getSession(request);
   const userId = session.get('userId');
-  
-  if (!userId) return null;
+
+  if (!userId) {
+    return null;
+  }
 
   try {
-    // Here we would typically query the database
-    // For now, we'll return a mock user if the ID matches
+    /*
+     * Here we would typically query the database
+     * For now, we'll return a mock user if the ID matches
+     */
     if (userId === 'admin-id') {
       return {
         id: 'admin-id',
@@ -50,6 +55,7 @@ export async function getUser(request: Request): Promise<User | null> {
         apiKeys: {},
       };
     }
+
     return null;
   } catch {
     return null;
@@ -59,10 +65,7 @@ export async function getUser(request: Request): Promise<User | null> {
 // Login user
 export async function login({ username, password }: LoginCredentials): Promise<User | null> {
   // Verify against environment variables for admin
-  if (
-    username === ENV.ADMIN_USERNAME &&
-    password === ENV.ADMIN_PASSWORD
-  ) {
+  if (username === ENV.ADMIN_USERNAME && password === ENV.ADMIN_PASSWORD) {
     return {
       id: 'admin-id',
       username,
@@ -70,6 +73,7 @@ export async function login({ username, password }: LoginCredentials): Promise<U
       apiKeys: {},
     };
   }
+
   return null;
 }
 

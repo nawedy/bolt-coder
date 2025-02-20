@@ -43,7 +43,7 @@ function CurrentDateTime() {
       setDateTime(new Date());
     }, 60000); // Update every minute
 
-    return () => clearInterval(timer);
+    return () => clearInterval(timer as unknown as number);
   }, []);
 
   return (

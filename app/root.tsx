@@ -83,9 +83,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { logStore } from './lib/stores/logs';
 import { AuthProvider } from './lib/auth/AuthContext';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
 
-export async function loader({ request }) {
+export async function loader({ request }: { request: Request }) {
   const user = await getUser(request);
   return json({ user });
 }
@@ -96,7 +95,7 @@ export function shouldRevalidate() {
 
 export default function App() {
   const theme = useStore(themeStore);
-  const { user } = useLoaderData<{ user: User | null }>();
+  useLoaderData<{ user: any | null }>();
 
   useEffect(() => {
     logStore.logSystem('Application initialized', {

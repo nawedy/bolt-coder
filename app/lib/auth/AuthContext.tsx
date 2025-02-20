@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
-import { Form, useNavigate, useSubmit } from '@remix-run/react';
-import type { AuthContextType, AuthState, LoginCredentials, User } from './types';
+import { useSubmit } from '@remix-run/react';
+import type { AuthContextType, AuthState, LoginCredentials } from './types';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -12,10 +12,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const submit = useSubmit();
-  const navigate = useNavigate();
 
   const login = useCallback(async (credentials: LoginCredentials) => {
     console.log('Login attempt:', { username: credentials.username });
+
     try {
       const formData = new FormData();
       formData.append('username', credentials.username);
@@ -42,11 +42,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateApiKey = useCallback(async (provider: string, key: string) => {
     setAuthState((prev) => {
-      if (!prev.user) return prev;
-      
-      // Update API key in database
-      auth.updateApiKey(prev.user.id, provider, key);
-      
+      if (!prev.user) {
+        return prev;
+      }
+
+      /*
+       * Update API key in database
+       * Update API key in session
+       */
+      const formData = new FormData();
+      formData.append('provider', provider);
+      formData.append('key', key);
+      submit(formData, { method: 'post', action: '/api/auth/update-key' });
+
       return {
         ...prev,
         user: {
@@ -60,17 +68,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ authState, login, logout, updateApiKey }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ authState, login, logout, updateApiKey }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
+
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
+
   return context;
 }

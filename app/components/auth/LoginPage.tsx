@@ -7,11 +7,6 @@ import React, { useState } from 'react';
 import { useAuth } from '~/lib/auth/AuthContext';
 import '~/styles/login.css';
 
-interface LoginFormData {
-  username: string;
-  password: string;
-}
-
 /**
  * LoginPage component that renders a login form with username and password fields
  * Uses the auth context to handle login functionality
@@ -30,9 +25,11 @@ export function LoginPage(): JSX.Element {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     setError(null);
     e.preventDefault();
+
     try {
       await login({ username, password });
       console.log('Login attempt completed');
+
       if (!authState.isAuthenticated) {
         setError('Invalid username or password');
       }
@@ -46,17 +43,11 @@ export function LoginPage(): JSX.Element {
     <div className="login-background">
       <div className="login-container">
         <h1 className="login-title">Login</h1>
-        {authState.error && (
-          <div className="error-message">
-            {authState.error}
-          </div>
-        )}
+        {authState.error && <div className="error-message">{authState.error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label htmlFor="username">
-              Username
-            </label>
+            <label htmlFor="username">Username</label>
             <input
               type="text"
               id="username"
@@ -69,9 +60,7 @@ export function LoginPage(): JSX.Element {
           </div>
 
           <div className="form-group">
-            <label htmlFor="password">
-              Password
-            </label>
+            <label htmlFor="password">Password</label>
             <input
               type="password"
               id="password"
@@ -83,11 +72,7 @@ export function LoginPage(): JSX.Element {
             />
           </div>
 
-          {(error || authState.error) && (
-            <div className="error-message">
-              {error || authState.error}
-            </div>
-          )}
+          {(error || authState.error) && <div className="error-message">{error || authState.error}</div>}
           <button type="submit" className="login-button">
             Start Now
           </button>

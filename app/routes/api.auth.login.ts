@@ -8,14 +8,15 @@ export const action: ActionFunction = async ({ request }) => {
   }
 
   try {
-    const { username, password } = await request.json();
-    
+    const data = (await request.json()) as { username: string; password: string };
+    const { username, password } = data;
+
     if (!username || !password) {
       return json({ error: 'Username and password are required' }, { status: 400 });
     }
 
     const user = auth.verifyUser(username, password);
-    
+
     if (!user) {
       return json({ error: 'Invalid credentials' }, { status: 401 });
     }
@@ -23,9 +24,6 @@ export const action: ActionFunction = async ({ request }) => {
     return json({ user });
   } catch (error) {
     console.error('Login error:', error);
-    return json(
-      { error: error instanceof Error ? error.message : 'Internal server error' },
-      { status: 500 }
-    );
+    return json({ error: error instanceof Error ? error.message : 'Internal server error' }, { status: 500 });
   }
 };

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/naming-convention */
 /**
  * Modern Cache Management System with SWR (Stale-While-Revalidate) support
  */
@@ -192,7 +193,7 @@ export class ModernCache {
     return null;
   }
 
-  private async revalidate(key: string, options: CacheOptions): Promise<void> {
+  private async revalidate(_key: string, _options: CacheOptions): Promise<void> {
     /*
      * Implementation would depend on your data fetching logic
      * This is where you'd re-fetch the data and update the cache

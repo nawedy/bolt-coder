@@ -10,13 +10,13 @@ export const meta: MetaFunction = () => {
   return [{ title: 'Bolt' }, { name: 'description', content: 'Talk with Bolt, an AI assistant from StackBlitz' }];
 };
 
-export async function loader({ request }) {
+export async function loader({ request }: { request: Request }) {
   const user = await getUser(request);
-  
+
   if (!user) {
     return redirect('/auth');
   }
-  
+
   return json({ user });
 }
 

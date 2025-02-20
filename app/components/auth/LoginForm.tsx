@@ -41,9 +41,7 @@ export function LoginForm() {
             </div>
           </div>
 
-          {actionData?.error && (
-            <div className="text-sm text-red-500">{actionData.error}</div>
-          )}
+          {actionData?.error && <div className="text-sm text-red-500">{actionData.error}</div>}
 
           <div>
             <button
