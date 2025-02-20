@@ -20,7 +20,11 @@ export function createModernSassConfig(isDev: boolean) {
         generateScopedName: isDev ? '[name]__[local]' : '[name]__[local]___[hash:base64:5]',
       },
       preprocessorOptions: {
-        scss: manager.getViteConfig().preprocessorOptions.scss,
+        scss: {
+          ...manager.getViteConfig().preprocessorOptions.scss,
+          outputStyle: isDev ? 'expanded' : 'compressed',
+          sourceMap: isDev,
+        },
       },
     },
   };
