@@ -130,7 +130,7 @@
     "node-fetch": "^3.3.2",
     "pnpm": "^9.14.4",
     "prettier": "^3.4.1",
-    "sass": "^1.71.0",
+    "sass": "^1.72.0",
     "typescript": "^5.7.2",
     "unified": "^11.0.5",
     "unocss": "^0.61.9",

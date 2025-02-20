@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { ModernSassManager } from '~/styles/config/sass-config';
 import path from 'path';
 
@@ -14,34 +14,21 @@ describe('ModernSassManager', () => {
     });
   });
 
-  it('should handle legacy JS API warnings', () => {
+  it('should properly configure Sass options', () => {
     const config = manager.getViteConfig();
     expect(config).toBeDefined();
-    expect(config.style).toBeDefined();
+    expect(config.preprocessorOptions).toBeDefined();
+    expect(config.preprocessorOptions.scss).toBeDefined();
+    expect(config.preprocessorOptions.scss.style).toBe('compressed');
+    expect(config.preprocessorOptions.scss.sourceMap).toBe(false);
   });
 
-  it('should properly configure logger', () => {
+  it('should properly handle imports', () => {
     const config = manager.getViteConfig();
-    const logger = config.logger;
+    expect(config.preprocessorOptions.scss.importers).toBeDefined();
+    expect(config.preprocessorOptions.scss.importers[0].findFileUrl).toBeDefined();
 
-    // Mock console.warn
-    const originalWarn = console.warn;
-    const mockWarn = vi.fn();
-    console.warn = mockWarn;
-
-    // Test legacy warning
-    if (logger?.warn) {
-      logger.warn('The legacy JS API is deprecated', { deprecation: false });
-      expect(mockWarn).not.toHaveBeenCalled();
-    }
-
-    // Test normal warning
-    if (logger?.warn) {
-      logger.warn('Normal warning', { deprecation: false });
-      expect(mockWarn).toHaveBeenCalledWith('Normal warning');
-    }
-
-    // Restore console.warn
-    console.warn = originalWarn;
+    const resolvedPath = manager.resolveModulePath('@/variables');
+    expect(resolvedPath).toBe(path.resolve(process.cwd(), 'app/styles/variables'));
   });
 });

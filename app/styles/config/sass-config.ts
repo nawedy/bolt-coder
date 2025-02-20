@@ -1,10 +1,7 @@
-import type { Logger } from 'sass';
-
+import * as sass from 'sass';
 import path from 'path';
 
-interface LoggerWarnOptions {
-  deprecation: boolean;
-}
+type SassFunction = (args: sass.Value[]) => sass.Value;
 
 export interface ModernSassConfig {
   /** Base path for resolving imports */
@@ -17,7 +14,7 @@ export interface ModernSassConfig {
   sourceMap: boolean;
 
   /** Custom functions */
-  functions?: Record<string, (...args: unknown[]) => unknown>;
+  functions?: Record<string, SassFunction>;
 
   /** Additional data to prepend */
   additionalData?: string;
@@ -25,22 +22,11 @@ export interface ModernSassConfig {
 
 export class ModernSassManager {
   private _config: ModernSassConfig;
-  private _logger?: Logger;
 
   constructor(config: ModernSassConfig) {
     this._config = {
       ...config,
       additionalData: config.additionalData ?? '',
-    };
-    this._logger = {
-      debug: (_message: string) => {
-        // Debug messages are ignored
-      },
-      warn: (message: string, _options: LoggerWarnOptions = { deprecation: false }) => {
-        if (!message.includes('legacy-js-api')) {
-          console.warn(message);
-        }
-      },
     };
   }
 
@@ -56,36 +42,31 @@ export class ModernSassManager {
   }
 
   /**
-   * Get Sass options for compilation
-   */
-  getSassOptions() {
-    return {
-      style: this._config.style,
-      sourceMap: this._config.sourceMap,
-      logger: this._logger,
-      functions: this._config.functions,
-      importers: [
-        {
-          findFileUrl: (url: string) => {
-            const resolved = this.resolveModulePath(url);
-            return resolved ? new URL(`file://${resolved}`) : null;
-          },
-        },
-      ],
-    };
-  }
-
-  /**
-   * Get Vite CSS config
+   * Get Vite configuration
    */
   getViteConfig() {
     return {
-      includePaths: [this._config.basePath],
-      additionalData: '@use "@/styles/variables" as *;',
-      style: this._config.style,
-      sourceMap: this._config.sourceMap,
-      logger: this._logger,
-      functions: this._config.functions,
+      preprocessorOptions: {
+        scss: {
+          functions: this._config.functions,
+          importers: [
+            {
+              findFileUrl: (url: string) => {
+                const resolvedPath = this.resolveModulePath(url);
+
+                if (resolvedPath) {
+                  return new URL(`file://${resolvedPath}`);
+                }
+
+                return null;
+              },
+            },
+          ],
+          additionalData: '@use "@/styles/variables" as *;',
+          style: this._config.style,
+          sourceMap: this._config.sourceMap,
+        },
+      },
     };
   }
 

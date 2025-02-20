@@ -10,7 +10,7 @@ export function createModernSassConfig(isDev: boolean) {
     basePath: path.resolve(process.cwd(), 'app/styles'),
     style: isDev ? 'expanded' : 'compressed',
     sourceMap: isDev,
-    functions: modernSassFunctions as unknown as Record<string, (...args: unknown[]) => unknown>,
+    functions: modernSassFunctions,
   });
 
   return {
@@ -19,7 +19,9 @@ export function createModernSassConfig(isDev: boolean) {
         localsConvention: 'camelCase',
         generateScopedName: isDev ? '[name]__[local]' : '[name]__[local]___[hash:base64:5]',
       },
-      ...manager.getViteConfig(),
+      preprocessorOptions: {
+        scss: manager.getViteConfig().preprocessorOptions.scss,
+      },
     },
   };
 }

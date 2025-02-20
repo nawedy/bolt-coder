@@ -1,9 +1,11 @@
-import { Value, SassNumber, SassColor, SassString } from 'sass';
+import * as sass from 'sass';
 
-export const modernSassFunctions = {
-  'theme-color($name, $opacity: 1)': (args: Value[]) => {
-    const name = (args[0] as SassString).text;
-    const opacity = args[1] ? (args[1] as SassNumber).value : 1;
+type SassFunction = (args: sass.Value[]) => sass.Value;
+
+export const modernSassFunctions: Record<string, SassFunction> = {
+  'theme-color($name, $opacity: 1)': (args: sass.Value[]): sass.Value => {
+    const name = (args[0] as sass.SassString).toString();
+    const opacity = args[1] ? Number((args[1] as sass.SassNumber).toString()) : 1;
 
     // Example of how to handle theme colors with modern Sass
     const themeColors: Record<string, string> = {
@@ -19,22 +21,22 @@ export const modernSassFunctions = {
     const g = parseInt(color.slice(3, 5), 16) / 255;
     const b = parseInt(color.slice(5, 7), 16) / 255;
 
-    return new SassColor({ x: r, y: g, z: b, alpha: opacity, space: 'xyz' });
+    return new sass.SassColor({ red: r, green: g, blue: b, alpha: opacity });
   },
 
-  'px-to-rem($px)': (args: Value[]) => {
-    const px = (args[0] as SassNumber).value;
+  'px-to-rem($px)': (args: sass.Value[]): sass.Value => {
+    const px = Number((args[0] as sass.SassNumber).toString());
     const rem = px / 16;
 
     // Assuming 16px base font size
-    return new SassNumber(rem, 'rem');
+    return new sass.SassNumber(rem, { numeratorUnits: ['rem'] });
   },
 
-  'safe-area($property, $value)': (args: Value[]) => {
-    const property = (args[0] as SassString).text;
-    const value = (args[1] as SassString).text;
+  'safe-area($property, $value)': (args: sass.Value[]): sass.Value => {
+    const property = (args[0] as sass.SassString).toString();
+    const value = (args[1] as sass.SassString).toString();
 
-    return new SassString(
+    return new sass.SassString(
       `
       ${property}: ${value};
       ${property}: env(safe-area-inset-${value});
