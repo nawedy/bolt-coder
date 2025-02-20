@@ -10,7 +10,7 @@ $layout-config: (
   'container-padding': 1rem,
   'grid-columns': 12,
   'grid-gap': 1rem,
-  'breakout-max': 1920px
+  'breakout-max': 1920px,
 );
 
 /// Container mixin with modern max-width handling
@@ -19,7 +19,7 @@ $layout-config: (
   $max-widths: (
     'small': 768px,
     'default': map.get($layout-config, 'container-max'),
-    'large': map.get($layout-config, 'breakout-max')
+    'large': map.get($layout-config, 'breakout-max'),
   );
 
   width: 100%;
@@ -39,10 +39,7 @@ $layout-config: (
 @mixin responsive-grid($columns: 12, $gap: 1rem) {
   display: grid;
   gap: $gap;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(min(100%, math.div(100%, $columns)), 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, math.div(100%, $columns)), 1fr));
 }
 
 /// Modern auto-fit grid for card layouts
@@ -62,7 +59,7 @@ $layout-config: (
   justify-content: flex-start;
   gap: $space;
 
-  &[data-reversed="true"] {
+  &[data-reversed='true'] {
     flex-direction: column-reverse;
   }
 }
@@ -91,7 +88,7 @@ $layout-config: (
     grid-template-columns: 1fr;
   }
 
-  &[data-side="right"] {
+  &[data-side='right'] {
     grid-template-columns: 1fr $side-width;
 
     @container (width < #{$content-min}) {

@@ -39,7 +39,7 @@ function decryptApiKey(encryptedApiKey: string): string {
 export const auth = {
   verifyUser(username: string, password: string): User | null {
     // Find user by username
-    const user = Array.from(users.values()).find(u => u.username === username);
+    const user = Array.from(users.values()).find((u) => u.username === username);
 
     if (!user) {
       console.log('User not found');
@@ -74,20 +74,24 @@ export const auth = {
   // Update API key
   updateApiKey(userId: string, provider: string, apiKey: string): void {
     const encryptedKey = encryptApiKey(apiKey);
+
     if (!apiKeys.has(userId)) {
       apiKeys.set(userId, new Map());
     }
+
     apiKeys.get(userId)?.set(provider, encryptedKey);
   },
 
   // Change password
   changePassword(userId: string, newPassword: string): { success: boolean; error?: string } {
     const validation = validatePassword(newPassword);
+
     if (!validation.isValid) {
       return { success: false, error: validation.error };
     }
 
     const user = users.get(userId);
+
     if (!user) {
       return { success: false, error: 'User not found' };
     }
@@ -101,12 +105,13 @@ export const auth = {
   // Create new user (admin only)
   createUser(username: string, password: string, isAdmin: boolean = false): { user?: User; error?: string } {
     const validation = validatePassword(password);
+
     if (!validation.isValid) {
       return { error: validation.error };
     }
 
     // Check if username already exists
-    if (Array.from(users.values()).some(u => u.username === username)) {
+    if (Array.from(users.values()).some((u) => u.username === username)) {
       return { error: 'Username already exists' };
     }
 

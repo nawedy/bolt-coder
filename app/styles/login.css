@@ -11,13 +11,16 @@
 
 .login-container {
   width: 400px;
-  background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)) padding-box,
-              linear-gradient(145deg, 
-                #ff4b1f 0%, /* Volcanic red */
-                transparent 35%,
-                #1fafff 65%, /* Ice blue */
-                #ffffff 100% /* Lightning white */
-              ) border-box;
+  background:
+    linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.9)) padding-box,
+    linear-gradient(
+        145deg,
+        #ff4b1f 0%,
+        /* Volcanic red */ transparent 35%,
+        #1fafff 65%,
+        /* Ice blue */ #ffffff 100% /* Lightning white */
+      )
+      border-box;
   border: 2px solid transparent;
   padding: 32px 24px;
   font-size: 14px;
@@ -36,10 +39,11 @@
   font-weight: 700;
   margin-bottom: 1rem;
   text-align: center;
-  background: linear-gradient(135deg, 
-    #ff4b1f 0%, /* Volcanic red */
-    #ffffff 50%, /* Lightning white */
-    #1fafff 100% /* Ice blue */
+  background: linear-gradient(
+    135deg,
+    #ff4b1f 0%,
+    /* Volcanic red */ #ffffff 50%,
+    /* Lightning white */ #1fafff 100% /* Ice blue */
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -94,11 +98,7 @@
 }
 
 .login-button {
-  background: linear-gradient(135deg,
-    #ff4b1f 0%,
-    #ff9a44 50%,
-    #1fafff 100%
-  );
+  background: linear-gradient(135deg, #ff4b1f 0%, #ff9a44 50%, #1fafff 100%);
   border: none;
   color: white;
   padding: 12px 24px;
@@ -114,7 +114,7 @@
 }
 
 .login-button:hover {
-  background: #39FF14;
+  background: #39ff14;
   box-shadow: 0 0 20px rgba(57, 255, 20, 0.6);
   color: #000;
   transform: translateY(-2px);
@@ -122,7 +122,7 @@
 
 .login-button:active {
   transform: scale(0.95);
-  background: #32E512;
+  background: #32e512;
   box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
 }
 
