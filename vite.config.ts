@@ -48,7 +48,7 @@ export default defineConfig(
       preprocessorOptions: {
         scss: {
           includePaths: ['app/styles'],
-          outputStyle: 'compressed',
+          functions: {},
           sourceMap: true,
         },
       },

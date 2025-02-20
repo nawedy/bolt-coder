@@ -27,6 +27,7 @@ export class ModernSassManager {
     this._config = {
       ...config,
       additionalData: config.additionalData ?? '',
+      functions: config.functions ?? {},
     };
   }
 
