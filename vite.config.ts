@@ -46,11 +46,7 @@ export default defineConfig(
         generateScopedName: '[name]__[local]___[hash:base64:5]',
       },
       preprocessorOptions: {
-        scss: {
-          includePaths: ['app/styles'],
-          functions: {},
-          sourceMap: true,
-        },
+        scss: () => import('./sass.config.js'),
       },
       devSourcemap: process.env.NODE_ENV === 'development',
     },
